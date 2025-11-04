@@ -10,5 +10,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base:'/IA04-React-Authentication-with-JWT-Access-Refresh-',
+  base:'/IA03-User-Registration-API-with-React-Frontend-frontend',
 })
