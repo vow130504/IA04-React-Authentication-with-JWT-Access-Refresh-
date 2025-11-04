@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ia03-user-registration-api
+    env: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: MONGODB_URI
+        sync: false
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: SALT_ROUNDS
+        sync: false
