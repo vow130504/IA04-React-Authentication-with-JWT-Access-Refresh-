@@ -1,3 +1,4 @@
+// frontend/src/components/pages/SignUpPage.tsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -5,8 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import AuthCard from '../AuthCard';
 import AuthInput from '../AuthInput';
 import AuthButton from '../AuthButton';
-
-const API_BASE = (import.meta as any)?.env?.VITE_API_BASE || 'http://localhost:3000';
+import axiosInstance from '@/lib/axiosInstance'; // Sử dụng axiosInstance
 
 type SignUpForm = { email: string; password: string };
 
@@ -21,29 +21,18 @@ const SignUpPage: React.FC = () => {
 
   const mutation = useMutation({
     mutationFn: async (payload: SignUpForm) => {
-      const res = await fetch(`${API_BASE}/user/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const text = await res.text();
-      let data: any = null;
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch {}
-      if (!res.ok) {
-        const msg =
-          (data && (data.message || data.error)) ||
-          text ||
-          'Đăng ký thất bại';
-        throw new Error(msg);
-      }
-      return data;
+      // Sử dụng axiosInstance thay vì fetch
+      const res = await axiosInstance.post('/user/register', payload);
+      return res.data;
     },
     onSuccess: () => {
       reset();
       setTimeout(() => navigate('/login'), 1000);
     },
+    onError: (error: any) => {
+      // Xử lý lỗi từ axios
+      return error;
+    }
   });
 
   const onSubmit: SubmitHandler<SignUpForm> = (data) => mutation.mutate(data);
@@ -54,7 +43,10 @@ const SignUpPage: React.FC = () => {
       footer={
         <>
           Đã có tài khoản?{' '}
-          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link
+            to="/login"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             Đăng nhập
           </Link>
         </>
@@ -93,18 +85,32 @@ const SignUpPage: React.FC = () => {
           errorMessage={errors.password?.message as string}
         />
         <div className="mt-6">
-          <AuthButton disabled={mutation.isPending} isLoading={mutation.isPending}>
+          <AuthButton
+            disabled={mutation.isPending}
+            isLoading={mutation.isPending}
+          >
             Đăng ký
           </AuthButton>
         </div>
         {mutation.isSuccess && (
-          <p className="mt-4 text-green-600 text-sm text-center" role="status" aria-live="polite">
+          <p
+            className="mt-4 text-green-600 text-sm text-center"
+            role="status"
+            aria-live="polite"
+          >
             Đăng ký thành công! Đang chuyển đến trang đăng nhập...
           </p>
         )}
         {mutation.isError && (
-          <p className="mt-4 text-red-600 text-sm text-center" role="alert" aria-live="assertive">
-            {(mutation.error as Error)?.message || 'Đăng ký thất bại'}
+          <p
+            className="mt-4 text-red-600 text-sm text-center"
+            role="alert"
+            aria-live="assertive"
+          >
+            {/* Lấy lỗi từ response của axios */}
+            {(mutation.error as any)?.response?.data?.message || 
+             (mutation.error as Error)?.message || 
+             'Đăng ký thất bại'}
           </p>
         )}
       </form>

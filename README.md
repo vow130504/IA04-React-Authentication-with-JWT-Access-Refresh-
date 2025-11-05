@@ -1,41 +1,47 @@
-# React Authentication with JWT (Access + Refresh)
+# React + TypeScript + Vite (với Auth JWT)
 
-## Tech
-- React, React Router
-- Axios with interceptors
-- React Query
-- React Hook Form
-- Tailwind CSS
+Đây là một ứng dụng React SPA được xây dựng với Vite, TypeScript, TailwindCSS, React Query, và React Hook Form, triển khai hệ thống xác thực đầy đủ bằng JWT (Access Token và Refresh Token).
 
-## API Endpoints (expected)
-- POST /auth/login -> { accessToken, refreshToken }
-- POST /auth/refresh { refreshToken } -> { accessToken }
-- POST /auth/logout { refreshToken } -> 200 OK
-- GET /me (protected) -> user payload
+## Yêu cầu của bài tập
 
-## Setup
-1. Install deps:
-   - `npm i axios @tanstack/react-query react-hook-form react-router-dom`
-2. Configure API base:
-   - Vite: set `VITE_API_BASE_URL` in `.env` (e.g., `VITE_API_BASE_URL=http://localhost:4000`)
-3. Run:
-   - `npm run dev`
+Ứng dụng này đáp ứng các yêu cầu sau:
+1.  **Luồng xác thực**: Đăng nhập, Đăng xuất.
+2.  **Quản lý Token**: Access Token (in-memory), Refresh Token (`localStorage`).
+3.  **Axios Interceptors**: Tự động đính kèm Access Token và tự động làm mới (refresh) khi token hết hạn (lỗi 401). Tự động logout nếu refresh thất bại.
+4.  **React Query**: `useMutation` (trong `useAuth`) cho login/logout, `useQuery` (trong `HomePage`) để fetch dữ liệu được bảo vệ.
+5.  **React Hook Form**: Quản lý form Đăng nhập (`LoginPage`) với validation.
+6.  **Protected Routes**: `HomePage` là route được bảo vệ, tự động điều hướng về `/login` nếu chưa xác thực.
+7.  **UI**: Có 3 trang: `LoginPage`, `SignUpPage`, và `HomePage` (hiển thị email user).
+8.  **Public Hosting**: Ứng dụng đã được deploy.
+9.  **Error Handling**: Xử lý lỗi khi login, signup và refresh token.
 
-## Auth Model
-- Access token: stored in memory (lost on refresh).
-- Refresh token: stored in `localStorage`.
-- Interceptors:
-  - Attach `Authorization: Bearer <accessToken>` to all requests.
-  - On `401`, try `/auth/refresh` with the refresh token, retry once.
-  - On refresh failure, clear tokens and redirect to `/login`.
+## Public URL (Requirement 8)
 
-## Protected Routes
-- `ProtectedRoute` checks auth and blocks unauthenticated users.
+Ứng dụng được deploy trên GitHub Pages tại địa chỉ:
 
-## Deployment
-- Build: `npm run build` then deploy `dist/` to Netlify/Vercel/etc.
-- Ensure `VITE_API_BASE_URL` points to your public API.
-- Configure SPA fallback (redirect all routes to `/index.html`).
+**[https://vow130504.github.io/IA03-User-Registration-API-with-React-Frontend-frontend/](https://vow130504.github.io/IA03-User-Registration-API-with-React-Frontend-frontend/)**
 
-## Public URL
-- Deployed at: <YOUR_PUBLIC_URL_HERE>
+(Lưu ý: Backend API cũng đã được deploy trên Render, dựa theo file `backend/render.yaml` của bạn).
+
+## Cách chạy dự án
+
+### Backend
+1.  `cd backend`
+2.  Tạo file `.env` dựa trên `.env.example`.
+3.  Thêm 2 biến môi trường mới vào `.env` (thay bằng key bí mật của bạn):
+    ```
+    JWT_ACCESS_SECRET=MY_ACCESS_SECRET_123
+    JWT_REFRESH_SECRET=MY_REFRESH_SECRET_456
+    ```
+4.  `npm install`
+5.  `npm run start:dev`
+
+### Frontend
+1.  `cd frontend`
+2.  Tạo file `.env` (hoặc `.env.development.local`)
+3.  Thêm biến môi trường trỏ đến backend API của bạn:
+    ```
+    VITE_API_BASE=http://localhost:3000
+    ```
+4.  `npm install`
+5.  `npm run dev`

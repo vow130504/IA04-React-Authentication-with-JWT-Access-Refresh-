@@ -1,12 +1,11 @@
+// frontend/src/components/pages/LoginPage.tsx
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
 import AuthCard from '../AuthCard';
 import AuthInput from '../AuthInput';
 import AuthButton from '../AuthButton';
-
-const API_BASE = (import.meta as any)?.env?.VITE_API_BASE || 'http://localhost:3000';
+import { useAuth } from '@/hooks/useAuth'; // Import useAuth
 
 type LoginForm = { email: string; password: string };
 
@@ -16,32 +15,19 @@ const LoginPage: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({ mode: 'onTouched' });
-  const navigate = useNavigate();
+  
+  // Lấy hàm login và trạng thái từ useAuth
+  const { login, loginMutation, isAuthenticated, isLoading } = useAuth();
 
-  const mutation = useMutation({
-    mutationFn: async (payload: LoginForm) => {
-      const res = await fetch(`${API_BASE}/user/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const text = await res.text();
-      let data: any = null;
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch {}
-      if (!res.ok) {
-        const msg = (data && (data.message || data.error)) || text || 'Đăng nhập thất bại';
-        throw new Error(msg);
-      }
-      return data;
-    },
-    onSuccess: () => {
-      setTimeout(() => navigate('/'), 800);
-    },
-  });
+  const onSubmit = (data: LoginForm) => {
+    login(data); // Gọi hàm login từ context
+  };
 
-  const onSubmit = (data: LoginForm) => mutation.mutate(data);
+  // Nếu đang check auth hoặc đã đăng nhập, điều hướng đi
+  if (isLoading) return <div>Đang tải...</div>;
+  if (isAuthenticated) return <Navigate to="/homepage" replace />;
+
+  const pending = !!loginMutation?.isPending;
 
   return (
     <AuthCard
@@ -49,7 +35,10 @@ const LoginPage: React.FC = () => {
       footer={
         <>
           Chưa có tài khoản?{' '}
-          <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link
+            to="/signup"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             Đăng ký ngay
           </Link>
         </>
@@ -79,27 +68,22 @@ const LoginPage: React.FC = () => {
           autoComplete="current-password"
           register={register('password', {
             required: 'Vui lòng nhập mật khẩu',
-            minLength: { value: 8, message: 'Ít nhất 8 ký tự' },
-            pattern: {
-              value: /[^A-Za-z0-9]/,
-              message: 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt',
-            },
           })}
           errorMessage={errors.password?.message as string}
         />
         <div className="mt-6">
-          <AuthButton disabled={mutation.isPending} isLoading={mutation.isPending}>
+          <AuthButton disabled={pending} isLoading={pending}>
             Đăng nhập
           </AuthButton>
         </div>
-        {mutation.isSuccess && (
-          <p className="mt-4 text-green-600 text-sm text-center" role="status" aria-live="polite">
-            Đăng nhập thành công! Đang chuyển hướng...
-          </p>
-        )}
-        {mutation.isError && (
-          <p className="mt-4 text-red-600 text-sm text-center" role="alert" aria-live="assertive">
-            {(mutation.error as Error)?.message || 'Đăng nhập thất bại'}
+        
+        {loginMutation?.isError && (
+          <p
+            className="mt-4 text-red-600 text-sm text-center"
+            role="alert"
+            aria-live="assertive"
+          >
+            {(loginMutation.error as Error)?.message || 'Đăng nhập thất bại'}
           </p>
         )}
       </form>
