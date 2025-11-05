@@ -23,15 +23,20 @@
 
 (Lưu ý: Backend API cũng đã được deploy trên Render, dựa theo file `backend/render.yaml` của bạn).
 
-## Cách chạy dự án
+## Cách chạy dự án local
 
 ### Backend
 1.  `cd backend`
 2.  Tạo file `.env` dựa trên `.env.example`.
-3.  Thêm 2 biến môi trường mới vào `.env` (thay bằng key bí mật của bạn):
+3.  Thêm các biến môi trường mới vào `.env` (thay bằng key bí mật của bạn):
     ```
-    JWT_ACCESS_SECRET=MY_ACCESS_SECRET_123
-    JWT_REFRESH_SECRET=MY_REFRESH_SECRET_456
+PORT=3000
+# Comma-separated origins (add your real frontend URL below)
+FRONTEND_ORIGIN=http://localhost:5173,https://vow130504.github.io
+MONGODB_URI=mongodb+srv://minhthienqbatri28_db_user:m1wZkk5HaurbtJ63@cluster0.unq1zxf.mongodb.net/user_registration_db?retryWrites=true&w=majority&appName=Cluster0
+SALT_ROUNDS=10
+JWT_ACCESS_SECRET=chuoi_bi_mat_so_1_rat_dai_va_phuc_tap_asdfqwer1234
+JWT_REFRESH_SECRET=chuoi_bi_mat_so_2_cung_phai_khac_chuoi_1_zxcv9876
     ```
 4.  `npm install`
 5.  `npm run start:dev`

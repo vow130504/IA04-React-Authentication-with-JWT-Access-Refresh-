@@ -20,7 +20,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
                 to="/homepage"
                 className="text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50 px-3 py-2 rounded-md text-sm font-medium"
               >
-                Trang chủ
+                Dashboard
               </Link>
               <Link
                 to="/login"
